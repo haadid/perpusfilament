@@ -21,13 +21,19 @@ class BookFactory extends Factory
     public function definition(): array
     {
         return [
-            'book_code' => $this->faker->word(),
-            'title' => $this->faker->sentence(4),
-            'slug' => $this->faker->slug(),
-            'isbn' => $this->faker->word(),
-            'year' => $this->faker->numberBetween(-10000, 10000),
-            'description' => $this->faker->text(),
-            'cover' => $this->faker->word(),
+            'book_code' => Str::random(4),
+            'title' => fake()->sentence(3),
+            'slug' => '',
+            'isbn' => fake()->isbn10(),
+            'year' => rand(1900, now()->year),
+            'description' => fake()->sentence(6),
         ];
+    }
+
+    public function configure(): BookFactory
+    {
+        return $this->afterMaking(function (Book $book) {
+            $book->slug = $book->book_code . '-' . Str::slug($book->title);
+        });
     }
 }

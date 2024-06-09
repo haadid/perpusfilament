@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Author;
+use App\Models\Book;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Publisher;
@@ -27,10 +28,10 @@ class DatabaseSeeder extends Seeder
         Author::factory()->count(7)->create();
         Category::factory()->count(5)->create();
         Publisher::factory()->count(5)->create();
+        Book::factory()->count(5)->create();
 
         $this->call([
             RoleSeeder::class,
-            BookSeeder::class
         ]);
 
         // assign role user(3) or student(4) to every user, user assignRole() method
