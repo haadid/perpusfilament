@@ -1,0 +1,75 @@
+created:
+    - database/factories/RoleFactory.php
+    - database/factories/GenreFactory.php
+    - database/factories/CategoryFactory.php
+    - database/factories/AuthorFactory.php
+    - database/factories/PublisherFactory.php
+    - database/factories/BookFactory.php
+    - database/factories/InventoryFactory.php
+    - database/factories/FineFactory.php
+    - database/factories/TransactionFactory.php
+    - database/factories/BlacklistFactory.php
+    - database/factories/BookEditFactory.php
+    - database/factories/ValidationBookFactory.php
+    - database/factories/LibrarianActivityFactory.php
+    - database/factories/ActivityLogFactory.php
+    - database/migrations/2024_06_05_145720_create_roles_table.php
+    - database/migrations/2024_06_05_145721_create_genres_table.php
+    - database/migrations/2024_06_05_145722_create_categories_table.php
+    - database/migrations/2024_06_05_145723_create_authors_table.php
+    - database/migrations/2024_06_05_145724_create_publishers_table.php
+    - database/migrations/2024_06_05_145725_create_books_table.php
+    - database/migrations/2024_06_05_145726_create_inventories_table.php
+    - database/migrations/2024_06_05_145727_create_fines_table.php
+    - database/migrations/2024_06_05_145728_create_transactions_table.php
+    - database/migrations/2024_06_05_145729_create_blacklists_table.php
+    - database/migrations/2024_06_05_145730_create_book_edits_table.php
+    - database/migrations/2024_06_05_145731_create_validation_books_table.php
+    - database/migrations/2024_06_05_145732_create_librarian_activities_table.php
+    - database/migrations/2024_06_05_145733_create_activity_logs_table.php
+    - database/migrations/2024_06_05_145734_create_role_user_table.php
+    - database/migrations/2024_06_05_145735_create_book_genre_table.php
+    - database/migrations/2024_06_05_145736_create_book_category_table.php
+    - database/migrations/2024_06_05_145737_create_author_book_table.php
+    - database/migrations/2024_06_05_145738_create_book_publisher_table.php
+    - app/Models/Role.php
+    - app/Models/Genre.php
+    - app/Models/Category.php
+    - app/Models/Author.php
+    - app/Models/Publisher.php
+    - app/Models/Book.php
+    - app/Models/Inventory.php
+    - app/Models/Fine.php
+    - app/Models/Transaction.php
+    - app/Models/Blacklist.php
+    - app/Models/BookEdit.php
+    - app/Models/ValidationBook.php
+    - app/Models/LibrarianActivity.php
+    - app/Models/ActivityLog.php
+models:
+    Author: { name: 'string:100 unique', slug: 'string unique', softdeletes: softDeletes, relationships: { belongsToMany: Book } }
+    Book: { book_code: 'string unique', title: string, slug: 'string unique', isbn: 'string nullable', year: integer, description: text, cover: string, softdeletes: softDeletes, relationships: { belongsToMany: 'Genre, Category, Author, Publisher', hasOne: Inventory, hasMany: 'BookEdit, LibrarianActivity, Transaction, Fine, ValidationBook' } }
+    Category: { name: 'string:100 unique', slug: 'string unique', softdeletes: softDeletes, relationships: { belongsToMany: Book } }
+    Genre: { name: 'string:100 unique', slug: 'string unique', softdeletes: softDeletes, relationships: { belongsToMany: Book } }
+    Inventory: { book_id: 'id foreign:books.id', slug: 'string unique', book_code: string, stock: 'integer default:0', available: 'integer default:0', borrowed: 'integer default:0', damaged: 'integer default:0', lost: 'integer default:0', softdeletes: softDeletes, relationships: { belongsTo: Book } }
+    Publisher: { name: 'string:100', slug: 'string unique', softdeletes: softDeletes, relationships: { belongsToMany: Book } }
+    Role: { name: 'string:100', slug: string, softdeletes: softDeletes, relationships: { belongsToMany: User } }
+    User: { name: string, username: 'string nullable', email: 'string unique', password: string, address: 'text nullable', phone: 'string nullable', status: string, email_verified_at: 'timestamp nullable', softdeletes: softDeletes, rememberToken: true, relationships: { belongsToMany: Role, hasMany: 'Blacklist, LibrarianTransactionActivity, ActivityLog, ValidationBook, Transaction, Fine' } }
+    Fines: { user_id: 'id foreign:users.id', book_id: 'id foreign:books.id', amount: 'decimal:12,2', timestamps: timestamps, softdeletes: softDeletes }
+    Transaction: { user_id: 'id foreign', book_id: 'id foreign', requested_at: datetime, borrowed_at: 'datetime nullable', due_at: 'datetime nullable', returned_at: 'datetime nullable', status: string, type: string, reason: 'text nullable', original_transaction_id: 'id foreign:transactions.id nullable', softdeletes: softDeletes, relationships: { belongsTo: 'User, Book, Transaction' } }
+    Blacklist: { user_id: 'id foreign', reason: text, is_active: boolean, blacklisted_at: datetime, unblacklisted_at: 'datetime nullable', relationships: { belongsTo: User } }
+    Book_Edit: { book_id: 'id foreign', title: string, isbn: string, year: integer, slug: string, description: text, cover: string, genres: 'text nullable', categories: 'text nullable', authors: 'text nullable', publishers: 'text nullable', timestamps: timestamps, softdeletes: softDeletes }
+    BookEdit: { book_id: 'id foreign', title: string, isbn: 'string nullable', year: integer, slug: string, description: text, cover: 'string nullable', genres: 'text nullable', categories: 'text nullable', authors: 'text nullable', publishers: 'text nullable', softdeletes: softDeletes, relationships: { belongsTo: Book, hasMany: ValidationBook } }
+    ValidationBook: { book_id: 'id foreign', user_id: 'id foreign', book_edit_id: 'id foreign:book_edit.id nullable', reason: text, requested_at: datetime, validated_at: 'datetime nullable', type: string, status: string, softdeletes: softDeletes, relationships: { belongsTo: 'User, Book, BookEdit' } }
+    PasswordResetToken: { email: 'string unique primary', token: string, created_at: 'datetime nullable' }
+    Fine: { user_id: 'id foreign', book_id: 'id foreign', issued_at: datetime, amount: 'decimal:12,2', is_paid: 'boolean default:false', paid_at: 'datetime nullable', reason: text, original_fine_id: 'id foreign:fines.id nullable', softdeletes: softDeletes, relationships: { belongsTo: 'User, Book' } }
+    LibrarianActivity: { librarian_id: 'id foreign:users.id', transaction_id: 'id foreign:transactions.id nullable', user_id: 'id foreign:users.id nullable', book_id: 'id foreign:books.id nullable', action: string, relationships: { belongsTo: 'User, Book, Transaction' } }
+    Session: { id: 'id string primary', user_id: 'id foreign nullable index', ip_address: 'string:45 nullable', user_agent: 'text nullable', payload: longtext, last_activity: 'integer index' }
+    ActivityLog: { user_id: 'id foreign:users.id', action: string, relationships: { belongsTo: User } }
+    LibrarianTransactionActivityLog: { librarian_id: 'id foreign:users.id', user_id: 'id foreign:users.id nullable', book_id: 'id foreign:books.id', transaction_id: 'id foreign:transactions.id nullable', transaction_status: 'string nullable', action: 'string nullable', timestamp: true }
+    LibrarianBookActivityLog: { librarian_id: 'id foreign:users.id', book_id: 'id foreign:books.id', action: string, timestamp: true }
+    FineUserBook: { user_id: 'id foreign', book_id: 'id foreign', timestamps: timestamps, softdeletes: softDeletes, relationships: { belongsTo: 'User, Book, Fine' } }
+    ValidationBookEditBook: { validation_book_id: 'id foreign:validation_book.id', book_edit_id: 'id foreign:book_edit.id nullable', book_id: 'id foreign:book.id', user_id: 'id foreign:users.id', softdeletes: softDeletes, relationships: { belongsToMany: 'BookEdit, ValidationBook, User, Book' } }
+    LibrarianTransactionActivity: { librarian_id: 'id foreign:users.id', transaction_id: 'id foreign:transactions.id nullable', action: 'string nullable', timestamp: true, relationships: { belongsTo: 'User, Transaction' } }
+    LibrarianBookActivity: { librarian_id: 'id foreign:users.id', book_id: 'id foreign:books.id', action: string, timestamp: true, relationships: { belongsTo: 'User, Book' } }
+    TransactionUserBook: { user_id: 'id foreign', book_id: 'id foreign', transaction_id: 'id foreign', timestamps: timestamps, relationships: { belongsTo: 'User, Book, Transaction' } }

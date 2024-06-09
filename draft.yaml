@@ -1,0 +1,156 @@
+models:
+  Role:
+    name: string:100
+    slug: string
+    softDeletes: true
+    relationships:
+      belongsToMany: User
+  Genre:
+    name: string:100 unique
+    slug: string unique
+    softDeletes: true
+    relationships:
+      belongsToMany: Book
+  Category:
+    name: string:100 unique
+    slug: string unique
+    softDeletes: true
+    relationships:
+      belongsToMany: Book
+  Author:
+    name: string:100 unique
+    slug: string unique
+    softDeletes: true
+    relationships:
+      belongsToMany: Book
+  Publisher:
+    name: string:100
+    slug: string unique
+    softDeletes: true
+    relationships:
+      belongsToMany: Book
+  Book:
+    book_code: string unique
+    title: string
+    slug: string unique
+    isbn: string nullable
+    year: integer
+    description: text
+    cover: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Genre, Category, Author, Publisher
+      hasOne: Inventory
+      hasMany: BookEdit, LibrarianActivity, Transaction, Fine, ValidationBook
+  Inventory:
+    book_id: id foreign:books.id
+    slug: string unique
+    book_code: string
+    stock: integer default:0
+    available: integer default:0
+    borrowed: integer default:0
+    damaged: integer default:0
+    lost: integer default:0
+    softDeletes: true
+    relationships:
+      belongsTo: Book
+  Fine:
+    user_id: id foreign
+    book_id: id foreign
+    issued_at: datetime
+    amount: decimal:12,2
+    is_paid: boolean default:false
+    paid_at: datetime nullable
+    reason: text
+    original_fine_id: id foreign:fines.id nullable
+    softDeletes: true
+    relationships:
+      belongsTo: User, Book
+  Transaction:
+    user_id: id foreign
+    book_id: id foreign
+    requested_at: datetime
+    borrowed_at: datetime nullable
+    due_at: datetime nullable
+    returned_at: datetime nullable
+    status: string
+    type: string
+    reason: text nullable
+    original_transaction_id: id foreign:transactions.id nullable
+    softDeletes: true
+    relationships:
+      belongsTo: User, Book, Transaction
+  Blacklist:
+    user_id: id foreign
+    reason: text
+    is_active: boolean
+    blacklisted_at: datetime
+    unblacklisted_at: datetime nullable
+    relationships:
+      belongsTo: User
+  BookEdit:
+    book_id: id foreign
+    title: string
+    isbn: string nullable
+    year: integer
+    slug: string
+    description: text
+    cover: string nullable
+    genres: text nullable
+    categories: text nullable
+    authors: text nullable
+    publishers: text nullable
+    softDeletes: true
+    relationships:
+      belongsTo: Book
+      hasMany: ValidationBook
+  ValidationBook:
+    book_id: id foreign
+    user_id: id foreign
+    book_edit_id: id foreign:book_edit.id nullable
+    reason: text
+    requested_at: datetime
+    validated_at: datetime nullable
+    type: string
+    status: string
+    softDeletes: true
+    relationships:
+      belongsTo: User, Book, BookEdit
+  LibrarianActivity:
+    librarian_id: id foreign:users.id
+    transaction_id: id foreign:transactions.id nullable
+    user_id: id foreign:users.id nullable
+    book_id: id foreign:books.id nullable
+    action: string
+    relationships:
+      belongsTo: User, Book, Transaction
+  ActivityLog:
+    user_id: id foreign:users.id
+    action: string
+    relationships:
+      belongsTo: User
+#  FineUserBook:
+#    user_id: id foreign
+#    book_id: id foreign
+#    timestamps: true
+#    softDeletes: true
+#    relationships:
+#      belongsTo: User, Book, Fine
+#  User:
+#    name: string
+#    username: string nullable
+#    email: string unique
+#    password: string
+#    address: text nullable
+#    phone: string nullable
+#    status: string
+#    email_verified_at: timestamp nullable
+#    softDeletes: true
+#    rememberToken: true
+#    relationships:
+#      belongsToMany: Role
+#      hasMany: Blacklist, LibrarianTransactionActivity, ActivityLog, ValidationBook, Transaction, Fine
+
+
+controllers:
+  # ...
